@@ -1,0 +1,47 @@
+{
+  "judge_model": "qwen3.5:4b",
+  "test_cases": [
+    {
+      "id": "requests_get_retries",
+      "library": "requests",
+      "language": "python",
+      "prompt": "Write a function get_with_retries(url, retries=3, timeout=5) that performs a GET request, retrying on failure, and raises after all retries are exhausted.",
+      "judge_criteria": "Must use the requests library's actual API (e.g. requests.get, exceptions like requests.exceptions.RequestException), must actually implement a retry loop up to `retries` times, and must pass timeout through to the request."
+    },
+    {
+      "id": "requests_session_headers",
+      "library": "requests",
+      "language": "python",
+      "prompt": "Write a function that creates a requests.Session with a default Authorization header set from a token argument, and returns the session.",
+      "judge_criteria": "Must use requests.Session(), must set session.headers with an Authorization header containing the token, must return the session object."
+    },
+    {
+      "id": "fastapi_post_endpoint",
+      "library": "fastapi",
+      "language": "python",
+      "prompt": "Write a FastAPI POST endpoint /items that accepts a pydantic model with fields name (str) and price (float), and returns the created item with an added id field.",
+      "judge_criteria": "Must define a pydantic BaseModel with name and price fields, must use @app.post('/items') or an APIRouter equivalent, and must return a response including an id."
+    },
+    {
+      "id": "pandas_groupby_mean",
+      "library": "pandas",
+      "language": "python",
+      "prompt": "Write a function that takes a DataFrame with columns 'category' and 'value', and returns the mean of 'value' grouped by 'category', sorted descending by the mean.",
+      "judge_criteria": "Must use DataFrame.groupby on 'category', compute mean of 'value', and sort the result descending."
+    },
+    {
+      "id": "click_cli_command",
+      "library": "click",
+      "language": "python",
+      "prompt": "Write a click CLI command 'greet' that takes a --name option (default 'World') and prints 'Hello, <name>!'.",
+      "judge_criteria": "Must use click.command and click.option decorators correctly, with a --name option defaulting to 'World', and print the greeting."
+    },
+    {
+      "id": "express_get_route",
+      "library": "express",
+      "language": "javascript",
+      "prompt": "Write an Express route handler for GET /health that returns a JSON response { status: 'ok' }.",
+      "judge_criteria": "Must use app.get or router.get with the path '/health', and respond with JSON containing status: 'ok'."
+    }
+  ]
+}

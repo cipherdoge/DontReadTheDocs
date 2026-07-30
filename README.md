@@ -63,6 +63,51 @@ so re-running `ingest` for the same library is a no-op unless you pass
    URLs, and the model is instructed to only use documented APIs and to cite
    which sections it used.
 
+## Benchmarking
+
+`benchmark.py` runs the full pipeline (ingest → retrieve → generate) against
+a set of test cases defined in `benchmark_config.json`, and reports two
+numbers:
+
+- **Compile rate** — % of generated code that is syntactically valid.
+  This is a *syntax* check only (`compile()` for Python, `node --check` for
+  JS, `tsc --noEmit` for TS if installed) — it does not execute the code or
+  install the target library, since running arbitrary LLM-generated code
+  would need real sandboxing. If no checker exists for a case's language,
+  that case is excluded from the compile-rate denominator.
+- **Judged correctness** — an LLM judge (default: the same model as
+  `judge_model` in the config) is shown the original prompt, optional
+  `judge_criteria`, and the generated code, and returns a JSON verdict
+  (`correct`, a 1–5 `score`, and reasoning).
+
+```bash
+python benchmark.py                                # uses benchmark_config.json
+python benchmark.py --config my_cases.json
+python benchmark.py --judge-model llama3.1:8b       # judge with a different/stronger model
+python benchmark.py --skip-ingest                   # skip re-ingesting (already indexed)
+```
+
+Add test cases to `benchmark_config.json`:
+
+```json
+{
+  "id": "requests_get_retries",
+  "library": "requests",
+  "language": "python",
+  "prompt": "Write a function that does a GET with retries and a timeout",
+  "judge_criteria": "Must use requests.get, must retry, must respect timeout"
+}
+```
+
+Each run prints a per-case + summary report and saves the full detail
+(including the raw generated response and raw judge output) as JSON under
+`benchmark_reports/report_<timestamp>.json`.
+
+**Judge caveat:** since the judge is itself an LLM, treat scores as a
+useful signal for tracking regressions/improvements across pipeline
+changes, not as ground truth. Spot-check a sample of `judge_reasoning`
+against the actual code periodically.
+
 ## Known limitations
 
 - No version pinning yet — re-ingesting overwrites the previous version's
